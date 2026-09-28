@@ -2,7 +2,7 @@
 
 > **Beta Notice**: This SDK is currently in beta (v0.3.0). The API may change before the 1.0 release.
 
-A Swift SDK for integrating [UserJot](https://userjot.com) feedback, roadmap, and changelog features into your iOS and macOS applications.
+A Swift SDK for integrating [UserJot](https://userjot.com) feedback, roadmap, and changelog features into your iOS, macOS, and visionOS applications.
 
 ## Installation
 
@@ -95,6 +95,10 @@ UserJot.showFeedback(presentationStyle: .mediumSheet) // Medium height sheet (iO
 
 Users can dismiss by dragging down.
 
+#### visionOS Presentation
+
+On visionOS, views are presented as standard sheets. Both `.sheet` and `.mediumSheet` use the same system presentation because visionOS does not support sheet detents.
+
 #### macOS Presentation
 
 On macOS, views are presented in a separate resizable window. The window opens centered on screen at a comfortable size (896px wide, 80% of screen height).
@@ -180,16 +184,16 @@ UserJot.identify(
 
 ## Requirements
 
-- iOS 13.0+ / macOS 10.15+
-- Swift 5.5+
-- Xcode 13.0+
+- iOS 13.0+ / macOS 10.15+ / visionOS 1.0+
+- Swift 6.1+
+- Xcode 16.3+
 
 ## Features
 
 - **Simple Integration**: Just two method calls to get started
-- **Cross-Platform**: Native support for both iOS and macOS
-- **Native Presentation**: iOS sheets and macOS windows
-- **SwiftUI Support**: Native SwiftUI view modifier (iOS)
+- **Cross-Platform**: Native support for iOS, macOS, and visionOS
+- **Native Presentation**: iOS and visionOS sheets and macOS windows
+- **SwiftUI Support**: Native SwiftUI view modifier (iOS and visionOS)
 - **Type-Safe**: Full Swift type safety
 - **Secure Authentication**: Optional HMAC-SHA256 signature support
 

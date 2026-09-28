@@ -223,8 +223,9 @@ public class UserJot {
             let webViewController = UserJotWebViewController(url: url)
 
             // Configure presentation style
+            webViewController.modalPresentationStyle = .pageSheet
+            #if os(iOS)
             if #available(iOS 15.0, *) {
-                webViewController.modalPresentationStyle = .pageSheet
                 if let sheet = webViewController.sheetPresentationController {
                     switch presentationStyle {
                     case .sheet:
@@ -236,9 +237,8 @@ public class UserJot {
                     sheet.prefersGrabberVisible = true
                     sheet.prefersScrollingExpandsWhenScrolledToEdge = false
                 }
-            } else {
-                webViewController.modalPresentationStyle = .pageSheet
             }
+            #endif
 
             // Find the topmost presented view controller
             var topController = rootViewController
@@ -315,7 +315,7 @@ extension UserJot {
 
     public enum PresentationStyle: Sendable {
         case sheet       // Standard sheet (default)
-        case mediumSheet // Medium height sheet (iOS 15+)
+        case mediumSheet // Medium height sheet on iOS 15+; standard sheet on visionOS.
     }
 
     struct MetadataResponse: Codable {
@@ -361,9 +361,15 @@ class UserJotWebViewController: UIViewController {
 
         // Set custom user agent to identify UserJot iOS SDK
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        #if os(visionOS)
+        let deviceInfo = "Apple Vision Pro"
+        let osName = "visionOS"
+        #else
         let deviceInfo = UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone"
+        let osName = "iOS"
+        #endif
         let osVersion = UIDevice.current.systemVersion
-        webView.customUserAgent = "UserJotSDK/1.0 (\(deviceInfo); iOS \(osVersion); AppVersion/\(appVersion))"
+        webView.customUserAgent = "UserJotSDK/1.0 (\(deviceInfo); \(osName) \(osVersion); AppVersion/\(appVersion))"
 
         // Start with webview slightly transparent to prevent white flash
         webView.alpha = 0.0
@@ -415,9 +421,6 @@ class UserJotWebViewController: UIViewController {
 
 extension UserJotWebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        // Show loading indicator if needed
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-
         // Fade in the web view once loading starts
         if webView.alpha < 1.0 {
             UIView.animate(withDuration: 0.2) {
@@ -426,14 +429,7 @@ extension UserJotWebViewController: WKNavigationDelegate {
         }
     }
 
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // Hide loading indicator
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-    }
-
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-
         let alert = UIAlertController(
             title: "Error",
             message: "Failed to load UserJot: \(error.localizedDescription)",
